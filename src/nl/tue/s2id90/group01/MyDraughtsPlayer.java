@@ -115,10 +115,30 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
             throws AIStoppedException {
         if (stopped) { stopped = false; throw new AIStoppedException(); }
         DraughtsState state = node.getState();
-        // ToDo: write an alphabeta search to compute bestMove and value
-        Move bestMove = state.getMoves().get(0);
-        int value = 0;
-        node.setBestMove(bestMove);
+        //----------------------------------------//
+        //- Own code -----------------------------//
+        //----------------------------------------//
+        //If at a leaf
+        if(depth == 0){
+            return evaluate(state);
+        }
+        //Set initial return to infinity
+        int value = Integer.MAX_VALUE;
+
+        //Process new moves        
+        int move_number = state.getMoves().size();
+        for (int x = 0; x < move_number; x++){
+            state.doMove(state.getMoves().get(x));
+            //Comparing to value may not be necessary, but fuck, I'm too tired to think about that
+            value = Math.min(value, alphaBetaMax(new DraughtsNode(state), alpha, beta, depth - 1));
+            beta = Math.min(value, beta);
+            if (beta <= alpha){
+                break;
+            }
+        }       
+        //========================================//
+        //Move bestMove = state.getMoves().get(0);
+        //node.setBestMove(bestMove);
         return value;
      }
     
@@ -126,10 +146,30 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
             throws AIStoppedException {
         if (stopped) { stopped = false; throw new AIStoppedException(); }
         DraughtsState state = node.getState();
-        // ToDo: write an alphabeta search to compute bestMove and value
-        Move bestMove = state.getMoves().get(0);
-        int value = 0;
-        node.setBestMove(bestMove);
+        //----------------------------------------//
+        //- Own code -----------------------------//
+        //----------------------------------------//
+        //If at a leaf
+        if(depth == 0){
+            return evaluate(state);
+        }
+        //Set initial return to infinity
+        int value = Integer.MIN_VALUE;
+
+        //Process new moves        
+        int move_number = state.getMoves().size();
+        for (int x = 0; x < move_number; x++){
+            state.doMove(state.getMoves().get(x));
+            //Comparing to value may not be necessary, but fuck, I'm too tired to think about that
+            value = Math.max(value, alphaBetaMin(new DraughtsNode(state), alpha, beta, depth - 1));
+            beta = Math.max(value, alpha);
+            if (beta <= alpha){
+                break;
+            }
+        }       
+        //========================================//
+        //Move bestMove = state.getMoves().get(0);
+        //node.setBestMove(bestMove);
         return value;
     }
 
