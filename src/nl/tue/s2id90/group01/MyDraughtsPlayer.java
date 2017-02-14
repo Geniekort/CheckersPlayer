@@ -116,7 +116,7 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
             throws AIStoppedException {
         if (stopped) { stopped = false; throw new AIStoppedException(); }
         DraughtsState state = node.getState();
-        
+         System.out.println("nl.tue.s2id90.group01.MyDraughtsPlayer.alphaBetaMin()");
         //----------------------------------------//
         //- Own code -----------------------------//
         //----------------------------------------//
@@ -129,12 +129,16 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
 
         //Process new moves        
         int move_number = state.getMoves().size();
+        System.out.println("mvn= " + move_number + "  depth= " + depth);
         for (int x = 0; x < move_number; x++){
-            state.doMove(state.getMoves().get(x));
+            System.out.println("x= " + x);
+            System.out.println(state.getMoves().get(x));
+            Move m = state.getMoves().get(x);
+            state.doMove(m);
             
             value = alphaBetaMax(new DraughtsNode(state), alpha, beta, depth - 1);
             
-            state.undoMove(state.getMoves().get(x));
+            state.undoMove(m);
             
             if(value < beta){
                 beta = value;
@@ -150,7 +154,7 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
         }       
         
         //========================================//
-        System.out.println(node.getBestMove());
+//        System.out.println(node.getBestMove());
         return value;
      }
     
@@ -158,8 +162,9 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
             throws AIStoppedException {
         if (stopped) { stopped = false; throw new AIStoppedException(); }
         DraughtsState state = node.getState();
+        System.out.println("nl.tue.s2id90.group01.MyDraughtsPlayer.alphaBetaMax()");
         
-        System.out.println(alpha + " " + beta + " " + depth);
+//        System.out.println(alpha + " " + beta + " " + depth);
         //----------------------------------------//
         //- Own code -----------------------------//
         //----------------------------------------//
@@ -172,12 +177,16 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
 
         //Process new moves        
         int move_number = state.getMoves().size();
+        System.out.println("mvn= " + move_number + "  depth= " + depth);
         for (int x = 0; x < move_number; x++){
-            state.doMove(state.getMoves().get(x));
+            System.out.println("x= " + x);
+            System.out.println(state.getMoves().get(x));
+            Move m = state.getMoves().get(x);
+            state.doMove(m);
             
             value = alphaBetaMin(new DraughtsNode(state), alpha, beta, depth - 1);
             
-            state.undoMove(state.getMoves().get(x));
+            state.undoMove(m);
             
             if(value > alpha){
                 alpha = value;
@@ -193,7 +202,7 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
         //========================================//
         //Move bestMove = state.getMoves().get(0);
         //node.setBestMove(bestMove);
-        System.out.println(node.getBestMove());
+//        System.out.println(node.getBestMove());
         return value;
     }
 
