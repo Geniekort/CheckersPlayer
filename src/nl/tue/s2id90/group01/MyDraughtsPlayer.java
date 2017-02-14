@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import nl.tue.s2id90.draughts.DraughtsState;
 import nl.tue.s2id90.draughts.player.DraughtsPlayer;
+import org10x10.dam.game.DamConstants;
 import org10x10.dam.game.Move;
 
 /**
@@ -115,6 +116,7 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
             throws AIStoppedException {
         if (stopped) { stopped = false; throw new AIStoppedException(); }
         DraughtsState state = node.getState();
+        
         //----------------------------------------//
         //- Own code -----------------------------//
         //----------------------------------------//
@@ -129,16 +131,26 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
         int move_number = state.getMoves().size();
         for (int x = 0; x < move_number; x++){
             state.doMove(state.getMoves().get(x));
-            //Comparing to value may not be necessary, but fuck, I'm too tired to think about that
-            value = Math.min(value, alphaBetaMax(new DraughtsNode(state), alpha, beta, depth - 1));
-            beta = Math.min(value, beta);
+            
+            value = alphaBetaMax(new DraughtsNode(state), alpha, beta, depth - 1);
+            
+            state.undoMove(state.getMoves().get(x));
+            
+            if(value < beta){
+                beta = value;
+                Move bestMove = state.getMoves().get(x);
+                node.setBestMove(bestMove);
+            }
+            
+            
+            
             if (beta <= alpha){
                 break;
             }
         }       
+        
         //========================================//
-        //Move bestMove = state.getMoves().get(0);
-        //node.setBestMove(bestMove);
+        System.out.println(node.getBestMove());
         return value;
      }
     
@@ -146,6 +158,8 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
             throws AIStoppedException {
         if (stopped) { stopped = false; throw new AIStoppedException(); }
         DraughtsState state = node.getState();
+        
+        System.out.println(alpha + " " + beta + " " + depth);
         //----------------------------------------//
         //- Own code -----------------------------//
         //----------------------------------------//
@@ -154,15 +168,24 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
             return evaluate(state);
         }
         //Set initial return to infinity
-        int value = Integer.MIN_VALUE;
+        int value = Integer.MAX_VALUE;
 
         //Process new moves        
         int move_number = state.getMoves().size();
         for (int x = 0; x < move_number; x++){
             state.doMove(state.getMoves().get(x));
-            //Comparing to value may not be necessary, but fuck, I'm too tired to think about that
-            value = Math.max(value, alphaBetaMin(new DraughtsNode(state), alpha, beta, depth - 1));
-            beta = Math.max(value, alpha);
+            
+            value = alphaBetaMin(new DraughtsNode(state), alpha, beta, depth - 1);
+            
+            state.undoMove(state.getMoves().get(x));
+            
+            if(value > alpha){
+                alpha = value;
+                Move bestMove = state.getMoves().get(x);
+                node.setBestMove(bestMove);
+            }
+            
+            
             if (beta <= alpha){
                 break;
             }
@@ -170,10 +193,33 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
         //========================================//
         //Move bestMove = state.getMoves().get(0);
         //node.setBestMove(bestMove);
+        System.out.println(node.getBestMove());
         return value;
     }
 
     /** A method that evaluates the given state. */
     // ToDo: write an appropriate evaluation function
-    int evaluate(DraughtsState state) { return 0; }
+    int evaluate(DraughtsState state) { 
+        int score = 0;
+        //Get array of pieces
+        int[] pieces = state.getPieces();
+        //Count piece worths of both players and take the difference as the score
+        //Man = 3 points, King = 5 points
+        for(int x = 0; x < pieces.length; x++){
+            if(pieces[x] == state.BLACKPIECE){
+                score += 3;
+            }
+            if(pieces[x] == state.BLACKKING){
+                score += 5;
+            }
+            if(pieces[x] == state.WHITEPIECE){
+                score -= 3;
+            }
+            if(pieces[x] == state.WHITEKING){
+                score -= 5;
+            }
+        }
+
+        return score; 
+    }
 }
