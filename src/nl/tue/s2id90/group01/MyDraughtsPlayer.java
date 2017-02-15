@@ -142,8 +142,10 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
             
             if(value < beta){
                 beta = value;
-                Move bestMove = state.getMoves().get(x);
-                node.setBestMove(bestMove);
+                if(depth == maxSearchDepth){
+                    Move bestMove = state.getMoves().get(x);
+                    node.setBestMove(bestMove);
+                }
             }
             
             
@@ -190,8 +192,11 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
             
             if(value > alpha){
                 alpha = value;
-                Move bestMove = state.getMoves().get(x);
-                node.setBestMove(bestMove);
+                
+                if(depth == maxSearchDepth){
+                    Move bestMove = state.getMoves().get(x);
+                    node.setBestMove(bestMove);
+                }
             }
             
             
@@ -216,16 +221,16 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
         //Man = 3 points, King = 5 points
         for(int x = 0; x < pieces.length; x++){
             if(pieces[x] == state.BLACKPIECE){
-                score += 3;
-            }
-            if(pieces[x] == state.BLACKKING){
-                score += 5;
-            }
-            if(pieces[x] == state.WHITEPIECE){
                 score -= 3;
             }
-            if(pieces[x] == state.WHITEKING){
+            if(pieces[x] == state.BLACKKING){
                 score -= 5;
+            }
+            if(pieces[x] == state.WHITEPIECE){
+                score += 3;
+            }
+            if(pieces[x] == state.WHITEKING){
+                score += 5;
             }
         }
 
