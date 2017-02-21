@@ -4,6 +4,7 @@ import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 import java.util.Collections;
 import java.util.List;
+import java.util.LinkedList;  
 import nl.tue.s2id90.draughts.DraughtsState;
 import nl.tue.s2id90.draughts.player.DraughtsPlayer;
 import org10x10.dam.game.DamConstants;
@@ -18,7 +19,6 @@ import org10x10.dam.game.Move;
 public class MyDraughtsPlayer  extends DraughtsPlayer{
     private int bestValue=0;
     int maxSearchDepth;
-    
     /** boolean that indicates that the GUI asked the player to stop thinking. */
     private boolean stopped;
 
@@ -30,25 +30,32 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
     @Override public Move getMove(DraughtsState s) {
         Move bestMove = null;
         bestValue = 0;
+        DraughtsState temp_state = s.clone();
         DraughtsNode node = new DraughtsNode(s);    // the root of the search tree
+        int temp_depth = maxSearchDepth;
+        
         try {
-            // compute bestMove and bestValue in a call to alphabeta
-            bestValue = alphaBeta(node, MIN_VALUE, MAX_VALUE, maxSearchDepth);
-            
-            // store the bestMove found uptill now
-            // NB this is not done in case of an AIStoppedException in alphaBeat()
-            bestMove  = node.getBestMove();
-            
-            // print the results for debugging reasons
-            System.err.format(
-                "%s: depth= %2d, best move = %5s, value=%d\n", 
-                this.getClass().getSimpleName(),maxSearchDepth, bestMove, bestValue
-            );
+            //Iterative deepening
+            while(stopped == false){
+                // compute bestMove and bestValue in a call to alphabeta
+                bestValue = alphaBeta(node, MIN_VALUE, MAX_VALUE, temp_depth);
+
+                // store the bestMove found uptill now
+                // NB this is not done in case of an AIStoppedException in alphaBeat()
+                bestMove  = node.getBestMove();
+
+                // print the results for debugging reasons
+                /*System.err.format(
+                    "%s: depth= %2d, best move = %5s, value=%d\n", 
+                    this.getClass().getSimpleName(),temp_depth, bestMove, bestValue
+                );*/
+                temp_depth++;
+            }
         } catch (AIStoppedException ex) {  /* nothing to do */  }
         
         if (bestMove==null) {
             System.err.println("no valid move found!");
-            return getRandomValidMove(s);
+            return getRandomValidMove(temp_state);
         } else {
             return bestMove;
         }
@@ -73,6 +80,7 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
     Move getRandomValidMove(DraughtsState s) {
         List<Move> moves = s.getMoves();
         Collections.shuffle(moves);
+        //System.out.println(s);
         return moves.isEmpty()? null : moves.get(0);
     }
     
@@ -116,7 +124,7 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
             throws AIStoppedException {
         if (stopped) { stopped = false; throw new AIStoppedException(); }
         DraughtsState state = node.getState();
-         System.out.println("nl.tue.s2id90.group01.MyDraughtsPlayer.alphaBetaMin()");
+         
         //----------------------------------------//
         //- Own code -----------------------------//
         //----------------------------------------//
@@ -129,10 +137,10 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
 
         //Process new moves        
         int move_number = state.getMoves().size();
-        System.out.println("mvn= " + move_number + "  depth= " + depth);
+        //System.out.println("mvn= " + move_number + "  depth= " + depth);
         for (int x = 0; x < move_number; x++){
-            System.out.println("x= " + x);
-            System.out.println(state.getMoves().get(x));
+            //System.out.println("x= " + x);
+            //System.out.println(state.getMoves().get(x));
             Move m = state.getMoves().get(x);
             state.doMove(m);
             
@@ -145,6 +153,7 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
                 if(depth == maxSearchDepth){
                     Move bestMove = state.getMoves().get(x);
                     node.setBestMove(bestMove);
+                    //System.out.println(bestMove);
                 }
             }
             
@@ -164,7 +173,7 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
             throws AIStoppedException {
         if (stopped) { stopped = false; throw new AIStoppedException(); }
         DraughtsState state = node.getState();
-        System.out.println("nl.tue.s2id90.group01.MyDraughtsPlayer.alphaBetaMax()");
+        //System.out.println("nl.tue.s2id90.group01.MyDraughtsPlayer.alphaBetaMax()");
         
 //        System.out.println(alpha + " " + beta + " " + depth);
         //----------------------------------------//
@@ -179,10 +188,10 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
 
         //Process new moves        
         int move_number = state.getMoves().size();
-        System.out.println("mvn= " + move_number + "  depth= " + depth);
+        //System.out.println("mvn= " + move_number + "  depth= " + depth);
         for (int x = 0; x < move_number; x++){
-            System.out.println("x= " + x);
-            System.out.println(state.getMoves().get(x));
+            //System.out.println("x= " + x);
+            //System.out.println(state.getMoves().get(x));
             Move m = state.getMoves().get(x);
             state.doMove(m);
             
@@ -196,6 +205,8 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
                 if(depth == maxSearchDepth){
                     Move bestMove = state.getMoves().get(x);
                     node.setBestMove(bestMove);
+                    //System.out.println(bestMove);
+
                 }
             }
             
@@ -212,7 +223,6 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
     }
 
     /** A method that evaluates the given state. */
-    // ToDo: write an appropriate evaluation function
     int evaluate(DraughtsState state) { 
         int score = 0;
         //Get array of pieces
