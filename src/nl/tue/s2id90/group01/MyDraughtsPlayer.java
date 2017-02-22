@@ -2,6 +2,7 @@ package nl.tue.s2id90.group01;
 
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.LinkedList;  
@@ -206,10 +207,8 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
                     Move bestMove = state.getMoves().get(x);
                     node.setBestMove(bestMove);
                     //System.out.println(bestMove);
-
                 }
             }
-            
             
             if (beta <= alpha){
                 break;
@@ -231,19 +230,122 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
         //Man = 3 points, King = 5 points
         for(int x = 0; x < pieces.length; x++){
             if(pieces[x] == state.BLACKPIECE){
-                score -= 3;
+                score -= 15;
             }
             if(pieces[x] == state.BLACKKING){
-                score -= 5;
+                score -= 25;
             }
             if(pieces[x] == state.WHITEPIECE){
-                score += 3;
+                score += 15;
             }
             if(pieces[x] == state.WHITEKING){
-                score += 5;
+                score += 25;
             }
         }
+        
+        score += clusterScore(state);
+        
 
         return score; 
+    }
+    
+    
+    int clusterScore(DraughtsState s){
+        boolean b = false, w = false;
+        int[][] field = transformField(s.getPieces());
+        
+        int score = 0;
+        
+        ArrayList<int[]> ads = null; // All Adjacent squares of a place
+        int odd = 1;
+        int place = -1;
+        for(int i = 0; i < 10; i++){
+            for(int j = 0; j < 5; j++){
+                
+                place = field[i][(j*2)+odd];
+                ads = adjacentPlaces((j*2)+odd, i); // Get adjacent squares of place and check for surrounding squares with same color
+                
+                if(isBlack(place)){
+                    boolean blacks = false;
+                    for(int q = 0 ; q < ads.size(); q++){
+                        if(isBlack(field[ads.get(q)[1]][ads.get(q)[0]])){
+                            blacks = true;
+                        }
+                    }
+                    if(!blacks){
+                        score += 1;
+                    }
+                }
+                if(isWhite(place)){
+                    boolean whites = false;
+                    for(int q = 0 ; q < ads.size(); q++){
+                        if(isWhite(field[ads.get(q)[1]][ads.get(q)[0]])){
+                            whites = true;
+                        }
+                    }
+                    if(!whites){
+                        score -= 1;
+                    }
+                }
+                
+            }
+            
+            if(odd == 1){
+                odd = 0;
+            }else{
+                odd = 1;
+            }
+        }
+        
+        return score;
+    }
+    
+    boolean isWhite(int q){
+        return q == DraughtsState.WHITEKING || q == DraughtsState.WHITEPIECE;
+    }
+    
+    boolean isBlack(int q){
+        return q == DraughtsState.BLACKKING || q == DraughtsState.BLACKPIECE;
+    }
+    
+    int[][] transformField(int[] initF){
+        int[][] resultField = new int[10][10];
+        int odd = 1;
+        
+        for(int i = 0; i < 10; i++){
+            for(int j = 0; j < 5; j++){
+                resultField[i][(j*2)+odd] = initF[(i*5) + j];
+            }
+            
+            if(odd == 1){
+                odd = 0;
+            }else{
+                odd = 1;
+            }
+        }
+        
+        return resultField;
+    }
+    
+    ArrayList<int[]> adjacentPlaces(int x, int y){
+        ArrayList<int[]> r = new ArrayList<int[]>();
+        
+        if(isInBound(x-1, y-1)){
+            r.add(new int[]{x-1,y-1});
+        }
+        if(isInBound(x+1, y-1)){
+            r.add(new int[]{x+1,y-1});
+        }
+        if(isInBound(x-1, y+1)){
+            r.add(new int[]{x-1,y+1});
+        }
+        if(isInBound(x+1, y+1)){
+            r.add(new int[]{x+1,y+1});
+        }
+        return r;
+    }
+    
+    boolean isInBound(int i, int j){
+        return i >= 0 && i < 10 && j >= 0 && j < 10;
     }
 }
