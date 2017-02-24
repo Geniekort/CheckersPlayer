@@ -35,6 +35,9 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
         DraughtsNode node = new DraughtsNode(s);    // the root of the search tree
         int temp_depth = maxSearchDepth;
         
+        //DEBUG
+        tempi(transformField(s.getPieces()));
+        
         try {
             //Iterative deepening
             while(stopped == false){
@@ -226,6 +229,7 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
         int score = 0;
         //Get array of pieces
         int[] pieces = state.getPieces();
+        int[][] field = transformField(pieces);
         //Count piece worths of both players and take the difference as the score
         //Man = 3 points, King = 5 points
         for(int x = 0; x < pieces.length; x++){
@@ -249,6 +253,23 @@ public class MyDraughtsPlayer  extends DraughtsPlayer{
         return score; 
     }
     
+    int tempi(int[][] field){
+        int tempi = 0;
+        for(int x = 0; x < 10; x++){
+            for(int y = 0; y < 10; y++){
+                if(field[x][y] == DraughtsState.BLACKPIECE){
+                    tempi -= y;
+                }
+                if(field[x][y] == DraughtsState.WHITEPIECE){
+                    tempi += 9-y;
+                }
+            }
+            
+        }
+               
+        System.out.println(tempi);
+        return tempi;
+    }
     
     int clusterScore(DraughtsState s){
         boolean b = false, w = false;
